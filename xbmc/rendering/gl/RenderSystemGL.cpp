@@ -581,8 +581,8 @@ void CRenderSystemGL::SetViewPort(CRect& viewPort)
   if (!m_bRenderCreated)
     return;
 
-  glScissor((GLint) viewPort.x1, (GLint) (m_height - viewPort.y1 - viewPort.Height()), (GLsizei) viewPort.Width(), (GLsizei) viewPort.Height());
-  glViewport((GLint) viewPort.x1, (GLint) (m_height - viewPort.y1 - viewPort.Height()), (GLsizei) viewPort.Width(), (GLsizei) viewPort.Height());
+  glScissor((GLint) viewPort.x1, (GLint) viewPort.y1, (GLsizei) viewPort.Width(), (GLsizei) viewPort.Height());
+  glViewport((GLint) viewPort.x1, (GLint) viewPort.y1, (GLsizei) viewPort.Width(), (GLsizei) viewPort.Height());
 }
 
 void CRenderSystemGL::SetScissors(const CRect &rect)
@@ -618,6 +618,27 @@ void CRenderSystemGL::ResetGLErrors()
       CLog::Log(LOGWARNING, "CRenderSystemGL::ResetGLErrors glGetError didn't return GL_NO_ERROR after %i iterations", count);
       break;
     }
+  }
+}
+
+void CRenderSystemGL::SetStereoMode(RENDER_STEREO_MODE mode, RENDER_STEREO_VIEW view)
+{
+  CRenderSystemBase::SetStereoMode(mode, view);
+
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  if(m_stereoMode == RENDER_STEREO_MODE_ANAGLYPH_RED_CYAN)
+  {
+    if(m_stereoView == RENDER_STEREO_VIEW_FIRST_PASS)
+      glColorMask(GL_TRUE, GL_FALSE, GL_FALSE, GL_TRUE);
+    else if(m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+      glColorMask(GL_FALSE, GL_TRUE, GL_TRUE, GL_TRUE);
+  }
+  if(m_stereoMode == RENDER_STEREO_MODE_ANAGLYPH_GREEN_MAGENTA)
+  {
+    if(m_stereoView == RENDER_STEREO_VIEW_FIRST_PASS)
+      glColorMask(GL_FALSE, GL_TRUE, GL_FALSE, GL_TRUE);
+    else if(m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+      glColorMask(GL_TRUE, GL_FALSE, GL_TRUE, GL_TRUE);
   }
 }
 

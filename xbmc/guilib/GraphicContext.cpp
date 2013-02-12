@@ -13,8 +13,9 @@
  *  GNU General Public License for more details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with XBMC; see the file COPYING.  If not, see
- *  <http://www.gnu.org/licenses/>.
+ *  along with XBMC; see the file COPYING.  If not, write to
+ *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
+ *  http://www.gnu.org/copyleft/gpl.html
  *
  */
 
@@ -59,6 +60,8 @@ CGraphicContext::CGraphicContext(void) :
   /*m_guiTransform,*/
   /*m_finalTransform, */
   /*m_groupTransform*/
+  , m_stereoMode(RENDER_STEREO_MODE_OFF)
+  , m_stereoView(RENDER_STEREO_VIEW_OFF)
 {
 }
 
@@ -257,8 +260,24 @@ const CRect CGraphicContext::GetViewWindow() const
     rect.y1 = (float)g_settings.m_ResInfo[m_Resolution].Overscan.top;
     rect.x2 = (float)g_settings.m_ResInfo[m_Resolution].Overscan.right;
     rect.y2 = (float)g_settings.m_ResInfo[m_Resolution].Overscan.bottom;
+
+    if (m_stereoMode == RENDER_STEREO_MODE_SPLIT_HORIZONTAL)
+    {
+      if (m_stereoView == RENDER_STEREO_VIEW_FIRST_PASS)
+        rect.y2 *= 0.5f;
+      else if (m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+        rect.y1 += rect.y2 * 0.5f;
+    }
+    else if (m_stereoMode == RENDER_STEREO_MODE_SPLIT_VERTICAL)
+    {
+      if (m_stereoView == RENDER_STEREO_VIEW_FIRST_PASS)
+        rect.x2 *= 0.5f;
+      else if (m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+        rect.x1 += rect.x2 * 0.5f;
+    }
     return rect;
   }
+
   return m_videoRect;
 }
 
@@ -687,10 +706,63 @@ void CGraphicContext::SetRenderingResolution(const RESOLUTION_INFO &res, bool ne
 
 void CGraphicContext::UpdateFinalTransform(const TransformMatrix &matrix)
 {
-  m_finalTransform = matrix;
   // We could set the world transform here to GPU-ize the animation system.
   // trouble is that we require the resulting x,y coords to be rounded to
   // the nearest pixel (vertex shader perhaps?)
+
+  if(m_stereoView == RENDER_STEREO_VIEW_OFF)
+  {
+    m_finalTransform = matrix;
+    return;
+  }
+
+  m_finalTransform.Reset();
+
+  if (m_stereoMode == RENDER_STEREO_MODE_SPLIT_VERTICAL)
+  {
+    m_finalTransform *= TransformMatrix::CreateScaler(0.5, 1.0, 1.0);
+    if(m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+      m_finalTransform *= TransformMatrix::CreateTranslation((float)m_iScreenWidth, 0.0, 0.0);
+  }
+  else if(m_stereoMode == RENDER_STEREO_MODE_SPLIT_HORIZONTAL)
+  {
+    m_finalTransform *= TransformMatrix::CreateScaler(1.0, 0.5, 1.0);
+    if(m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+      m_finalTransform *= TransformMatrix::CreateTranslation(0.0, (float)m_iScreenHeight, 0.0);
+  }
+
+  m_finalTransform *= matrix;
+}
+
+void CGraphicContext::SetStereoView(RENDER_STEREO_VIEW view)
+{
+  m_stereoView = view;
+
+  while(m_viewStack.size())
+    m_viewStack.pop();
+
+  CRect viewport(0, 0, (float)m_iScreenWidth, (float)m_iScreenHeight);
+  if (m_stereoView != RENDER_STEREO_VIEW_OFF)
+  {
+    if(m_stereoMode == RENDER_STEREO_MODE_SPLIT_VERTICAL)
+    {
+      if (m_stereoView == RENDER_STEREO_VIEW_FIRST_PASS)
+        viewport.x2 = (float)m_iScreenWidth*0.5f;
+      else if (m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+        viewport.x1 = (float)m_iScreenWidth*0.5f;
+    }
+    else if (m_stereoMode == RENDER_STEREO_MODE_SPLIT_HORIZONTAL)
+    {
+      if (m_stereoView == RENDER_STEREO_VIEW_FIRST_PASS)
+        viewport.y2 = (float)m_iScreenHeight*0.5f;
+      else if (m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+        viewport.y1 = (float)m_iScreenHeight*0.5f;
+    }
+  }
+
+  m_viewStack.push(viewport);
+  g_Windowing.SetStereoMode(m_stereoMode, m_stereoView);
+  g_Windowing.SetViewPort(viewport);
 }
 
 void CGraphicContext::InvertFinalCoords(float &x, float &y) const
@@ -775,7 +847,13 @@ CRect CGraphicContext::generateAABB(const CRect &rect) const
 //       to cut down on one setting)
 void CGraphicContext::UpdateCameraPosition(const CPoint &camera)
 {
-  g_Windowing.SetCameraPosition(camera, m_iScreenWidth, m_iScreenHeight);
+  CPoint camera2(camera);
+  if(m_stereoView == RENDER_STEREO_VIEW_FIRST_PASS)
+    camera2.x -= 0.25f * m_iScreenWidth;
+  else if(m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
+    camera2.x += 0.25f * m_iScreenWidth;
+
+  g_Windowing.SetCameraPosition(camera2, m_iScreenWidth, m_iScreenHeight);
 }
 
 bool CGraphicContext::RectIsAngled(float x1, float y1, float x2, float y2) const
@@ -858,6 +936,8 @@ void CGraphicContext::SetMediaDir(const CStdString &strMediaDir)
 void CGraphicContext::Flip(const CDirtyRegionList& dirty)
 {
   g_Windowing.PresentRender(dirty);
+  m_stereoMode = (RENDER_STEREO_MODE)g_guiSettings.GetInt("videoscreen.mode3d");
+  m_stereoView = RENDER_STEREO_VIEW_OFF;
 }
 
 void CGraphicContext::ApplyHardwareTransform()
