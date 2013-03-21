@@ -1104,6 +1104,7 @@ void CGUIWindowFullScreen::RenderTTFSubtitles()
 
       RESOLUTION res = g_graphicsContext.GetVideoResolution();
       g_graphicsContext.SetRenderingResolution(g_graphicsContext.GetResInfo(), false);
+      g_graphicsContext.TranslateGUITransform(0, 0, -20);
 
       float maxWidth = (float) g_settings.m_ResInfo[res].Overscan.right - g_settings.m_ResInfo[res].Overscan.left;
       m_subsLayout->Update(subtitleText, maxWidth * 0.9f, false, true); // true to force LTR reading order (most Hebrew subs are this format)
@@ -1135,7 +1136,7 @@ void CGUIWindowFullScreen::RenderTTFSubtitles()
         y = std::max(y, (float) g_settings.m_ResInfo[res].Overscan.top);
         y = std::min(y, g_settings.m_ResInfo[res].Overscan.bottom - textHeight);
       }
-
+        
       m_subsLayout->RenderOutline(x, y, 0, 0xFF000000, XBFONT_CENTER_X, maxWidth);
 
       // reset rendering resolution
