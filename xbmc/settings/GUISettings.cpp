@@ -494,7 +494,7 @@ void CGUISettings::Initialize()
 #if !defined(TARGET_DARWIN) && !defined(TARGET_RASPBERRY_PI)
   AddBool(aocat, "audiooutput.passthroughaac"   , 299, false);
 #endif
-#if !defined(TARGET_DARWIN_IOS) && !defined(TARGET_RASPBERRY_PI)
+#if !defined(TARGET_DARWIN_IOS) && !defined(TARGET_RASPBERRY_PI)	
   AddBool(aocat, "audiooutput.multichannellpcm" , 348, true );
 #endif
 #if !defined(TARGET_DARWIN) && !defined(TARGET_RASPBERRY_PI)
@@ -806,6 +806,7 @@ void CGUISettings::Initialize()
   AddBool(sub,"subtitles.overrideassfonts", 21368, false);
   AddSeparator(sub, "subtitles.sep1");
   AddPath(sub, "subtitles.custompath", 21366, "", BUTTON_CONTROL_PATH_INPUT, false, 657);
+  AddInt(sub, "subtitles.depth", 36507, -20, -200, 2, 200, SPIN_CONTROL_INT);
 
   map<int, int> subtitleAlignments;
   subtitleAlignments.insert(make_pair(21461, SUBTITLE_ALIGN_MANUAL));

@@ -11444,3 +11444,7 @@ msgstr ""
 msgctxt "#36506"
 msgid "Anaglyph Green/Magenta"
 msgstr ""
+
+msgctxt "#36507"
+msgid "Subtitle Depth"
+msgstr ""
