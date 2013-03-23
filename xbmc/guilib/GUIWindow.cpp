@@ -364,7 +364,12 @@ void CGUIWindow::AfterRender()
   // the controls rendering after the window has finished it's animation
   // we call the base class instead of this class so that we can find the change
   if (m_closing && !CGUIControlGroup::IsAnimating(ANIM_TYPE_WINDOW_CLOSE))
-    Close(true);
+  {
+    // If we are at the first pass of stereo rendering don't
+    // close. The second pass still has to render the window
+    if (g_graphicsContext.GetStereoView() != RENDER_STEREO_VIEW_FIRST_PASS)
+      Close(true);
+  }
 
 }
 

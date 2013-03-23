@@ -591,7 +591,9 @@ bool CGUIWindowManager::Render()
       CGUITexture::DrawQuad(*i, 0x4c00ff00);
   }
 
-  m_tracker.CleanMarkedRegions();
+  //allow second pass to render before cleaning regions
+  if (g_graphicsContext.GetStereoView() != RENDER_STEREO_VIEW_FIRST_PASS)
+    m_tracker.CleanMarkedRegions();
 
   // execute post rendering actions (finalize window closing)
   AfterRender();
