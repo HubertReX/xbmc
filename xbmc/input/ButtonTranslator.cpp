@@ -124,6 +124,8 @@ static const ActionMapping actions[] =
         {"3dmodeoff"         , ACTION_MODE3D_OFF},
         {"3dmodetab"         , ACTION_MODE3D_TAB},
         {"3dmodesbs"         , ACTION_MODE3D_SBS},
+        {"gui3ddepthinc"     , ACTION_GUI3DDEPTH_INC},
+        {"gui3ddepthdec"     , ACTION_GUI3DDEPTH_DEC},
         {"number0"           , REMOTE_0},
         {"number1"           , REMOTE_1},
         {"number2"           , REMOTE_2},

@@ -320,6 +320,9 @@
 #define ACTION_MODE3D_TAB             236
 #define ACTION_MODE3D_SBS             237
 
+#define ACTION_GUI3DDEPTH_INC         238
+#define ACTION_GUI3DDEPTH_DEC         239
+
 // Window ID defines to make the code a bit more readable
 #define WINDOW_INVALID                     9999
 #define WINDOW_HOME                       10000

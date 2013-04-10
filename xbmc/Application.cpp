@@ -2946,6 +2946,7 @@ bool CApplication::OnAction(const CAction &action)
   {
     int mode = RENDER_STEREO_MODE_OFF;
     g_guiSettings.SetInt("videoscreen.mode3d", mode);
+    CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36501), g_localizeStrings.Get(36502 + mode));
   }
   else if (action.GetID() == ACTION_MODE3D_TAB)
   {
@@ -2958,6 +2959,34 @@ bool CApplication::OnAction(const CAction &action)
     int mode = RENDER_STEREO_MODE_SPLIT_VERTICAL;
     g_guiSettings.SetInt("videoscreen.mode3d", mode);
     CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36501), g_localizeStrings.Get(36502 + mode));
+  }
+  else if (action.GetID() == ACTION_GUI3DDEPTH_INC)
+  {
+    float depth = g_guiSettings.GetFloat("videoscreen.gui3ddepth");
+	depth += 0.05f;
+	if (depth > 0.5f)
+		depth = 0.5f;
+
+	g_guiSettings.SetFloat("videoscreen.gui3ddepth", depth);
+
+	CStdString strMessage;
+    strMessage.Format(g_localizeStrings.Get(36509).c_str(), (int) (depth * 100.0f));
+
+	CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36508), strMessage);
+  }
+  else if (action.GetID() == ACTION_GUI3DDEPTH_DEC)
+  {
+    float depth = g_guiSettings.GetFloat("videoscreen.gui3ddepth");
+	depth -= 0.05f;
+	if (depth < 0.1f)
+		depth = 0.1f;
+
+	g_guiSettings.SetFloat("videoscreen.gui3ddepth", depth);
+
+	CStdString strMessage;
+    strMessage.Format(g_localizeStrings.Get(36509).c_str(), (int) (depth * 100.0f));
+
+	CGUIDialogKaiToast::QueueNotification(CGUIDialogKaiToast::Info, g_localizeStrings.Get(36508), strMessage);
   }
   return false;
 }

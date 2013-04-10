@@ -854,10 +854,15 @@ CRect CGraphicContext::generateAABB(const CRect &rect) const
 void CGraphicContext::UpdateCameraPosition(const CPoint &camera)
 {
   CPoint camera2(camera);
+  float gui3Ddepth = g_guiSettings.GetFloat("videoscreen.gui3ddepth");
+  
+  if (gui3Ddepth < 0.1f) gui3Ddepth = 0.1f;
+  if (gui3Ddepth > 0.5f) gui3Ddepth = 0.5f;
+  
   if(m_stereoView == RENDER_STEREO_VIEW_FIRST_PASS)
-    camera2.x -= 0.25f * m_iScreenWidth;
+    camera2.x -= gui3Ddepth * m_iScreenWidth;
   else if(m_stereoView == RENDER_STEREO_VIEW_SECOND_PASS)
-    camera2.x += 0.25f * m_iScreenWidth;
+    camera2.x += gui3Ddepth * m_iScreenWidth;
 
   g_Windowing.SetCameraPosition(camera2, m_iScreenWidth, m_iScreenHeight);
 }

@@ -459,6 +459,7 @@ void CGUISettings::Initialize()
   stereo.insert(make_pair(36505,RENDER_STEREO_MODE_ANAGLYPH_RED_CYAN));
   stereo.insert(make_pair(36506,RENDER_STEREO_MODE_ANAGLYPH_GREEN_MAGENTA));
   AddInt(vs, "videoscreen.mode3d", 36501, RENDER_STEREO_MODE_OFF, stereo, SPIN_CONTROL_TEXT);
+  AddFloat(vs, "videoscreen.gui3ddepth", 36508,  0.25f, 0.1f, 0.05f, 0.5f);
 
   CSettingsCategory* ao = AddCategory(SETTINGS_SYSTEM, "audiooutput", 772);
 

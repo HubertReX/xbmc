@@ -11448,3 +11448,11 @@ msgstr ""
 msgctxt "#36507"
 msgid "Subtitle Depth"
 msgstr ""
+
+msgctxt "#36508"
+msgid "GUI 3D Depth"
+msgstr ""
+
+msgctxt "#36509"
+msgid "GUI 3D depth set to %d %% of screen width"
+msgstr ""
